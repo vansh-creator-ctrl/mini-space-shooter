@@ -1,5 +1,6 @@
 import math
 import random
+import asyncio
 import pygame
 
 # --- Configuration & Constants ---
@@ -103,7 +104,7 @@ def create_booster_icon(kind, font):
     pygame.draw.circle(surf, (*color, 70), (13, 13), 13)
     pygame.draw.circle(surf, color, (13, 13), 10)
     pygame.draw.circle(surf, WHITE, (13, 13), 10, 2)
-    
+
     labels = {"rapid": "R", "shield": "S", "multi": "M", "life": "+"}
     text_surf = font.render(labels[kind], True, (20, 20, 20))
     surf.blit(text_surf, (13 - text_surf.get_width() // 2, 13 - text_surf.get_height() // 2))
@@ -115,17 +116,17 @@ def build_asteroid_surface(seed):
     radius = rng.randint(14, 26)
     surf = pygame.Surface((radius * 2 + 4, radius * 2 + 4), pygame.SRCALPHA)
     center = radius + 2
-    
+
     base = rng.choice([(120, 110, 100), (90, 95, 110), (110, 90, 80)])
     dark = tuple(max(0, c - 45) for c in base)
-    
+
     points = []
     num_verts = rng.randint(8, 11)
     for i in range(num_verts):
         angle = (2 * math.pi / num_verts) * i
         dist = radius * rng.uniform(0.65, 1.0)
         points.append((center + math.cos(angle) * dist, center + math.sin(angle) * dist))
-        
+
     pygame.draw.polygon(surf, base, points)
     pygame.draw.polygon(surf, dark, points, 2)
 
@@ -133,13 +134,13 @@ def build_asteroid_surface(seed):
         crater_x = center + rng.uniform(-radius * 0.4, radius * 0.4)
         crater_y = center + rng.uniform(-radius * 0.4, radius * 0.4)
         pygame.draw.circle(surf, dark, (int(crater_x), int(crater_y)), rng.randint(2, 4))
-        
+
     return surf, radius
 
 
 def draw_background(theme):
     surf = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-    
+
     # Gradient setup
     for y in range(SCREEN_HEIGHT):
         progress = y / SCREEN_HEIGHT
@@ -161,7 +162,7 @@ def draw_background(theme):
     px, py, pr, pcol = theme["planet"]
     shade = tuple(max(0, c - 70) for c in pcol)
     highlight = tuple(min(255, c + 60) for c in pcol)
-    
+
     pygame.draw.circle(surf, (*pcol, 255), (px, py), pr)
     pygame.draw.circle(surf, (*shade, 160), (px + pr // 4, py + pr // 4), pr)
     pygame.draw.circle(surf, (*highlight, 90), (px - pr // 3, py - pr // 3), pr // 2)
@@ -169,7 +170,7 @@ def draw_background(theme):
     ring = pygame.Surface((pr * 3, pr), pygame.SRCALPHA)
     pygame.draw.ellipse(ring, (*highlight, 60), (0, 0, pr * 3, pr), 3)
     surf.blit(ring, (px - pr * 3 // 2, py - pr // 2))
-    
+
     return surf
 
 
@@ -182,10 +183,10 @@ def build_vignette():
         radius = max_radius * (1 - t * 0.35)
         alpha = int(70 * t)
         pygame.draw.circle(
-            surf, 
-            (0, 0, 10, alpha), 
-            (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 
-            int(radius), 
+            surf,
+            (0, 0, 10, alpha),
+            (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2),
+            int(radius),
             width=max(1, int(max_radius / steps) + 2)
         )
     return surf
@@ -312,12 +313,12 @@ class SpaceGame:
             speed = random.uniform(1.5, 5.5)
             self.particles.append(
                 Particle(
-                    x, y, 
-                    math.cos(angle) * speed, 
-                    math.sin(angle) * speed, 
-                    random.randint(18, 34), 
-                    color, 
-                    random.randint(2, 4), 
+                    x, y,
+                    math.cos(angle) * speed,
+                    math.sin(angle) * speed,
+                    random.randint(18, 34),
+                    color,
+                    random.randint(2, 4),
                     "dot"
                 )
             )
@@ -326,12 +327,12 @@ class SpaceGame:
             speed = random.uniform(3, 7)
             self.particles.append(
                 Particle(
-                    x, y, 
-                    math.cos(angle) * speed, 
-                    math.sin(angle) * speed, 
-                    random.randint(10, 18), 
-                    WHITE, 
-                    random.randint(4, 8), 
+                    x, y,
+                    math.cos(angle) * speed,
+                    math.sin(angle) * speed,
+                    random.randint(10, 18),
+                    WHITE,
+                    random.randint(4, 8),
                     "spark"
                 )
             )
@@ -341,12 +342,12 @@ class SpaceGame:
         base_surf = font.render(text, True, color)
         glow_surf = font.render(text, True, glow_color)
         out = pygame.Surface((base_surf.get_width() + 8, base_surf.get_height() + 8), pygame.SRCALPHA)
-        
+
         for offset_x, offset_y in ((-2, 0), (2, 0), (0, -2), (0, 2)):
             temp = glow_surf.copy()
             temp.set_alpha(90)
             out.blit(temp, (4 + offset_x, 4 + offset_y))
-            
+
         out.blit(base_surf, (4, 4))
         return out
 
@@ -585,7 +586,7 @@ class SpaceGame:
             flame_h = flicker + (5 if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] else 0)
             flame_surf = pygame.Surface((26, flame_h + 12), pygame.SRCALPHA)
             flame_col = GOLD if "rapid" in self.active_boosters else (255, 120, 30)
-            
+
             pygame.draw.polygon(flame_surf, (*flame_col, 180), [(3, 0), (13, flame_h), (23, 0)])
             pygame.draw.polygon(flame_surf, (255, 220, 80, 220), [(8, 0), (13, flame_h - 5), (18, 0)])
             surface.blit(flame_surf, (self.player.x + 9, self.player.y + 44))
@@ -634,7 +635,7 @@ class SpaceGame:
             surface.blit(reach_txt, (SCREEN_WIDTH // 2 - reach_txt.get_width() // 2, SCREEN_HEIGHT // 2 + 44))
             surface.blit(retry_txt, (SCREEN_WIDTH // 2 - retry_txt.get_width() // 2, SCREEN_HEIGHT // 2 + 84))
 
-    def run(self):
+    async def run(self):
         running = True
         scene = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -664,9 +665,18 @@ class SpaceGame:
             self.screen.blit(scene, (offset_x, offset_y))
             pygame.display.flip()
 
+            # REQUIRED for pygbag/browser builds: hand control back to the
+            # browser event loop every frame, or the page never repaints
+            # and you get a blank/grey canvas.
+            await asyncio.sleep(0)
+
         pygame.quit()
 
 
-if __name__ == "__main__":
+async def main():
     game = SpaceGame()
-    game.run()
+    await game.run()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
