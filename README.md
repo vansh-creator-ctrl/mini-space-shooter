@@ -2,7 +2,7 @@ Space-Shooter-Mission
 Hey, this is my custom retro arcade shooter created for Hack Club! I wanted to try building an action-packed space game entirely in Python using Pygame and asyncio, without relying on any external image assets or pre-made sprite sheets.
 
 Live Demo & Preview
-Live Site: https://boisterous-cuchufli-c4bc48.netlify.app/ Screenshot:<img width="447" height="444" alt="Capture code" src="https://github.com/user-attachments/assets/30ef0017-b730-47d5-b010-f9dbd7d79b9b" />
+Live Site: https://vansh-creator-ctrl.itch.io/mini-space-shooting-game Screenshot:<img width="447" height="444" alt="Capture code" src="https://github.com/user-attachments/assets/30ef0017-b730-47d5-b010-f9dbd7d79b9b" />
 
 
 What I Built
